@@ -22,22 +22,39 @@ function generateSeed() {
   const seedDiv = document.getElementById("seedDisplay");
   seedDiv.innerHTML = "";
 
-  const shuffledImages = images.sort(() => 0.5 - Math.random());
-  const image1 = shuffledImages[0];
-  const image2 = shuffledImages[1];
+  // Pick first random image
+  const image1Index = Math.floor(Math.random() * images.length);
+  const image1 = images[image1Index];
+
+  // Decide whether to show a second image
+  const showTwo = Math.random() > 0.5;
+  let image2 = null;
+
+  if (showTwo) {
+    // Pick a different image for image2
+    let image2Index;
+    do {
+      image2Index = Math.floor(Math.random() * images.length);
+    } while (image2Index === image1Index); // ensures different image
+    image2 = images[image2Index];
+  }
+
   const prompt = prompts[Math.floor(Math.random() * prompts.length)];
 
-  const showTwo = Math.random() > 0.5;
-
   let output = `<div><img src="${image1.url}" alt="${image1.title}"><p><strong>${image1.title}</strong></p>`;
-  if (showTwo) {
+  if (showTwo && image2) {
     output += `<img src="${image2.url}" alt="${image2.title}"><p><strong>${image2.title}</strong></p>`;
   }
   output += `<p><strong>Prompt:</strong> ${prompt}</p></div>`;
 
+  const copyText = image1.title + " " + image1.url +
+    (showTwo && image2 ? `\n${image2.title} ${image2.url}` : "") +
+    `\nPrompt: ${prompt}`;
+
   seedDiv.innerHTML = output;
-  seedDiv.setAttribute("data-copy", `${image1.title} ${image1.url}` + (showTwo ? `\n${image2.title} ${image2.url}` : "") + `\nPrompt: ${prompt}`);
+  seedDiv.setAttribute("data-copy", copyText);
 }
+
 
 function copySeed() {
   const text = document.getElementById("seedDisplay").getAttribute("data-copy");
